@@ -1,0 +1,45 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Apr 30 04:21:10 2020
+
+@author: camil
+"""
+
+import numpy as np
+from math import exp
+import scipy.constants as sc
+from matplotlib import pyplot as plt
+
+###################################################################################################
+#Variables
+
+Npts=1001 # número de puntos
+punto_central= 500
+Ez= np.zeros((1,Npts),dtype = float) #campo eléctrico en z
+Hy= np.zeros((1,Npts),dtype = float) #campo magnético en Y
+dt=0.18e-9 #diferencial de tiempo
+dx=0.054 #diferencial de X
+E0=1.0   #campo máximo inicial 1 V/m    
+  
+Ttotal = 100  #Estaremos estudiando qué le pasa a la señal a los 100*0.18e-9 = 180ns
+
+##################################################################################################
+#método
+
+for i in range (0, Ttotal):
+   #calcula el campo magnético
+   for j in range (0,Npts-1):  #Se toma Npts-1 para no tocar las fronteras porque hasta ahora no se han colocado
+       Hy[0,j]=Hy[0, j] + (dt/(sc.mu_0*dx)) *(Ez[0, j + 1] - Ez[0, j])
+
+   for k in range (0, Npts-1):
+       Ez[0, k]=Ez[0, k] + (dt/(sc.epsilon_0*dx))*(Hy[0, k]-Hy[0, k - 1])
+   #Fuente eléctrica:  
+   Ez[0, punto_central]=E0*exp(-(i-8.0)**2/16.0)
+   
+X0 = (np.linspace(-500, 500, num =Npts))*dx      #Cambia de número de puntitos a metros
+
+#dibuja el campo eléctrico
+plt.plot(X0, Ez[0,:])
+plt.ylabel('Campo eléctrico (V/m)')
+plt.xlabel('Posición x(m)')
+plt.show()
